@@ -1,3 +1,8 @@
+globals [
+  initial-population-rich
+  initial-population-poor
+]
+
 turtles-own [
   sugar           ;; the amount of sugar this turtle has
   metabolism      ;; the amount of sugar that each turtles loses each tick
@@ -18,6 +23,8 @@ to setup
   clear-all
   create-turtles initial-population [ turtle-setup ]
   setup-patches
+  set initial-population-rich count turtles with [pxcor + pycor < 49]
+  set initial-population-poor count turtles with [pxcor + pycor >= 49]
   reset-ticks
 end
 
@@ -145,9 +152,21 @@ to-report random-in-range [low high]
   report low + random (high - low + 1)
 end
 
+;; Count turtles in regions of poor & rich areas
+to count-turtles-start
+  set initial-population-rich count turtles with [pxcor + pycor < 49]
+  set initial-population-poor count turtles with [pxcor + pycor >= 49]
+end
+
 ;;
 ;; Visualization Procedures
 ;;
+
+to color-agents-by-poverty ;; turtle procedure
+   ifelse pxcor + pycor < 49
+  [set color red]
+  [set color blue]
+end
 
 to no-visualization ;; turtle procedure
   set color red
@@ -250,8 +269,8 @@ CHOOSER
 150
 visualization
 visualization
-"no-visualization" "color-agents-by-vision" "color-agents-by-metabolism"
-0
+"no-visualization" "color-agents-by-poverty" "color-agents-by-vision" "color-agents-by-metabolism"
+1
 
 PLOT
 815
@@ -270,6 +289,8 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plotxy ticks count turtles"
+"pen-1" 1.0 0 -2674135 true "" "plotxy ticks count turtles with [(xcor + ycor) < 49]"
+"pen-2" 1.0 0 -14070903 true "" "plotxy ticks count turtles with [(xcor + ycor) >= 49]"
 
 PLOT
 1045
@@ -341,11 +362,11 @@ PENS
 "default" 1.0 0 -16777216 true "" "plotxy ticks mean [metabolism] of turtles"
 
 MONITOR
-10
-170
-122
-219
-pop rich city
+20
+220
+112
+269
+Rich Pop -End
 count turtles with [(xcor + ycor) < 49]
 17
 1
@@ -353,20 +374,20 @@ count turtles with [(xcor + ycor) < 49]
 
 MONITOR
 135
-170
-227
-215
-pop poor city
+220
+235
+265
+Poor Pop - End
 count turtles with [(xcor + ycor) >= 49]
 17
 1
 11
 
 MONITOR
-10
-230
-102
-275
+25
+390
+117
+435
 sugar rich city
 sum [sugar] of turtles with [(xcor + ycor) < 49]
 0
@@ -374,10 +395,10 @@ sum [sugar] of turtles with [(xcor + ycor) < 49]
 11
 
 MONITOR
-110
-230
-207
-275
+125
+390
+222
+435
 sugar poor city
 sum [sugar] of turtles with [(xcor + ycor) >= 49]
 0
@@ -385,11 +406,11 @@ sum [sugar] of turtles with [(xcor + ycor) >= 49]
 11
 
 PLOT
-15
-295
-215
-445
-plot 1
+920
+360
+1120
+510
+Wealth (Poor - Rich)
 NIL
 NIL
 0.0
@@ -400,19 +421,41 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -14439633 true "" "plotxy ticks sum [sugar] of turtles with [(xcor + ycor) < 49]"
-"pen-1" 1.0 0 -2674135 true "" "plotxy ticks sum [sugar] of turtles with [(xcor + ycor) >= 49]"
+"default" 1.0 0 -5298144 true "" "plotxy ticks sum [sugar] of turtles with [(xcor + ycor) < 49]"
+"pen-1" 1.0 0 -14070903 true "" "plotxy ticks sum [sugar] of turtles with [(xcor + ycor) >= 49]"
 
 SWITCH
 260
-175
+200
 363
-208
+233
 equal?
 equal?
-0
+1
 1
 -1000
+
+MONITOR
+135
+170
+237
+215
+Poor Pop - Start
+initial-population-poor
+1
+1
+11
+
+MONITOR
+20
+170
+110
+215
+Rich Pop - Start
+initial-population-rich
+1
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -775,15 +818,20 @@ NetLogo 6.4.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment" repetitions="3" runMetricsEveryStep="false">
+  <experiment name="experiment" repetitions="50" sequentialRunOrder="false" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="1000"/>
+    <timeLimit steps="500"/>
+    <metric>initial-population-rich</metric>
     <metric>count turtles with [(xcor + ycor) &lt; 49]</metric>
+    <metric>initial-population-poor</metric>
     <metric>count turtles with [(xcor + ycor) &gt;= 49]</metric>
     <metric>sum [sugar] of turtles with [(xcor + ycor) &lt; 49]</metric>
     <metric>sum [sugar] of turtles with [(xcor + ycor) &gt;= 49]</metric>
     <enumeratedValueSet variable="initial-population">
+      <value value="250"/>
+      <value value="500"/>
+      <value value="750"/>
       <value value="1000"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="equal?">
